@@ -54,8 +54,9 @@ public class VirtualDataSet extends DataSet {
 		Attribute[] copiedAttributes = new Attribute[attributes.length];
 		for (int i=0; i < attributes.length; i++){
 			copiedAttributes[i] = attributes[i].clone();
-			copiedAttributes[i] = copiedAttributes[i].replaceValues(getUniqueAttribute(copiedAttributes[i].getValues()));
+			//copiedAttributes[i].replaceValues(getUniqueAttribute(copiedAttributes[i].getValues()));
 		}
+		this.attributes = copiedAttributes;
 
 	}
 
@@ -64,9 +65,9 @@ public class VirtualDataSet extends DataSet {
 	 */
 	public String toString() {
 		// WRITE YOUR CODE HERE!
-		
-		//Remove the following line when this method has been implemented
-		return null;
+		return super.toString();
+
+		//??????????????????????????????????????????????????????????????
 	}
 
 	/**
@@ -101,13 +102,13 @@ public class VirtualDataSet extends DataSet {
 	public VirtualDataSet[] partitionByNominallAttribute(int attributeIndex) {
 		// WRITE YOUR CODE HERE!
 		
-		Attribute[] tempAttributes = new Attribute[copiedAttributes.length];
+		//Attribute[] tempAttributes = new Attribute[this.attributes.length];
 
-		String[] splitAttributeString = copiedAttributes[attributeIndex].getValues();
-		String[] nDSplitAttributeString = getUniqueAttribute(copiedAttributes[attributeIndex].getValues());
+		String[] splitAttributeString = this.attributes[attributeIndex].getValues();
+		String[] nDSplitAttributeString = getUniqueAttribute(this.attributes[attributeIndex].getValues());
 
 		// here we are creating the map (row numbers)
-		
+
 		int[][] twoDMap = new int[nDSplitAttributeString.length][];
 		int[] tempIntArray;
 
@@ -158,17 +159,17 @@ public class VirtualDataSet extends DataSet {
 
 
 
-			
-
 		// here we are going thorugh each arrtibute (attributes have duplication) and make a new string array
 		//w.r.t the map and then update the String[] of each attribute that we are already.
 
 		VirtualDataSet[] finalVirtualDataSetArray = new VirtualDataSet[twoDMap.length];
 		String[] tempString;
 
+		String[] tempString2;
+
 		for (int i = 0; i < twoDMap.length; i++) {
 
-			for (int n = 0; n < copiedAttributes.length; n++){
+			for (int n = 0; n < this.attributes.length; n++){
 
 				if (n != attributeIndex){
 
@@ -176,15 +177,18 @@ public class VirtualDataSet extends DataSet {
 
 					for (int j = 0; j < twoDMap[i].length; j++) {
 						
-						tempString[j] = copiedAttributes[n].getValues()[j];
+						tempString2 = this.attributes[n].getValues();
+
+						tempString[j] = tempString2[j];
 					}
 
-					copiedAttributes[n].replaceValues(tempString);
+					this.attributes[n].replaceValues(tempString);
 				}
 
 			}
+			this.map = twoDMap[i];
 
-			finalVirtualDataSetArray[i] = VirtualDataSet(this.source, twoDMap[i], copiedAttributes);
+			finalVirtualDataSetArray[i] = new VirtualDataSet(this.source, this.map, this.attributes);
 		}
 
 		return finalVirtualDataSetArray;
@@ -210,9 +214,110 @@ public class VirtualDataSet extends DataSet {
 	 */
 	public VirtualDataSet[] partitionByNumericAttribute(int attributeIndex, int valueIndex) {
 		// WRITE YOUR CODE HERE!
-		
-		//Remove the following line when this method has been implemented
-		return null;
+
+
+		String[] splitAttributeString = this.attributes[attributeIndex].getValues();
+		String target = splitAttributeString[valueIndex];
+
+		// here we are creating the map (row numbers)
+
+		int[][] twoDMap = new int[2][];
+		int[] firstArray = new int[splitAttributeString.length];
+		int[] secondArray = new int[splitAttributeString.length];
+
+		for (int n = 0; n < splitAttributeString.length; n++){
+
+			try {
+				if (Integer.parseInt(splitAttributeString[n]) <= Integer.parseInt(target)){
+					firstArray[n] = n;
+				}
+
+				else{
+					secondArray[n] = n;
+				}
+			}
+
+			catch (Exception e){
+
+				if (Float.parseFloat(splitAttributeString[n]) <= Float.parseFloat(target)){
+					firstArray[n] = n;
+				}
+
+				else{
+					secondArray[n] = n;
+				}
+			}
+		}
+		twoDMap[0] = firstArray;
+		twoDMap[1] = secondArray;
+
+
+		// here and in the next nested loop we are removing extra 0's from our map's sub-arrays
+
+		int counter = 0;
+
+		for (int i = 0; i < twoDMap.length; i++) {
+
+			for (int j = 0; j < twoDMap[i].length; j++){
+
+				if ((j != 0) && (twoDMap[i][j] == 0)){
+					counter++;
+				}
+			}
+		}
+
+
+		int[] temp;
+
+		for (int i = 0; i < twoDMap.length; i++) {
+
+			temp = new int[twoDMap[i].length - counter];
+
+			for (int j = 0; j < temp.length; j++){
+
+				temp[j] = twoDMap[i][j];
+
+			}
+
+			twoDMap[i] = temp;
+		}
+
+
+		// here we are going thorugh each arrtibute (attributes have duplication) and make a new string array
+		//w.r.t the map and then update the String[] of each attribute that we are already.
+
+		VirtualDataSet[] finalVirtualDataSetArray = new VirtualDataSet[twoDMap.length];
+		String[] tempString;
+
+		String[] tempString2;
+
+		for (int i = 0; i < twoDMap.length; i++) {
+
+			for (int n = 0; n < this.attributes.length; n++){
+
+					tempString = new String[twoDMap[i].length];
+
+					for (int j = 0; j < twoDMap[i].length; j++) {
+						
+						tempString2 = this.attributes[n].getValues();
+
+						tempString[j] = tempString2[j];
+					}
+
+					this.attributes[n].replaceValues(tempString);
+			}
+			this.map = twoDMap[i];
+
+			finalVirtualDataSetArray[i] = new VirtualDataSet(this.source, this.map, this.attributes);
+		}
+
+		return finalVirtualDataSetArray;
+
+
+
+
+
+
 	}
 
 	public static void main(String[] args) throws Exception {

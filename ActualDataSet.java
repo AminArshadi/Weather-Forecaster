@@ -37,21 +37,55 @@ public class ActualDataSet extends DataSet {
 		super();
 		numAttributes = reader.getNumberOfColumns();
         numRows = reader.getNumberOfDataRows();
-        
 
         dataSourceId = reader.getSourceId();
         matrix = reader.getData();
+
+        
+        
+
+        //attributes = attributeCreater(numAttributes, attributeNames);
+
+        ActualDataSet reader2 = new ActualDataSet(reader);
+
+
+
+
+
+
+
+        String[][] reverseMatrix = new String[numAttributes][numRows];
+
+        for (int i=0; i < numRows; i++){
+
+            for (int j=0; j < matrix[i].length; j++){
+
+                reverseMatrix[j][i] = matrix[i][j];
+            }
+        }
+
+        Attribute[] arrayOfAttributes = new Attribute[reverseMatrix.length];
         String[] attributeNames = reader.getAttributeNames();
 
-        attributes = attributeCreater(numAttributes, attributeNames);
+        for (int i=0; i < reverseMatrix.length; i++){
 
+            if (Util.isArrayNumeric(reverseMatrix[i])){
+
+                arrayOfAttributes[i] = new Attribute(attributeNames[i], i, AttributeType.NUMERIC, reverseMatrix[i]);
+            }
+            else{
+                arrayOfAttributes[i] = new Attribute(attributeNames[i], i, AttributeType.NOMINAL, reverseMatrix[i]);
+            }
+        }
+
+        attributes = arrayOfAttributes;
 
 	}
 
 
 
 
-
+/*
 	public static void main(String[] args) throws Exception {
 
         System.out.print("Please enter the name of the CSV file to read: ");
@@ -84,7 +118,7 @@ public class ActualDataSet extends DataSet {
 
     }
 
-
+*/
 
 
 
@@ -104,9 +138,7 @@ public class ActualDataSet extends DataSet {
 	 */
 	public String getSourceId() {
 		// WRITE YOUR CODE HERE!
-		
-
-		return null;
+		return dataSourceId;
 	}
 
 	/**
@@ -116,9 +148,20 @@ public class ActualDataSet extends DataSet {
 	 */
 	public VirtualDataSet toVirtual() {
 		// WRITE YOUR CODE HERE!
-		
-		//Remove the following line when this method has been implemented
-		return null;
+
+
+
+        int[] rows = new int[numRows];
+        for (int i=0; i < numRows; i++){
+            rows[i] = i;
+        }
+
+        //ActualDataSet mainSource = new ActualDataSet(reader2);
+
+        
+        return new VirtualDataSet(a, rows, attributes);;
+
+
 	}
 
 	/**
@@ -132,18 +175,13 @@ public class ActualDataSet extends DataSet {
 
 		String separator = System.getProperty("line.separator");
 
-		buffer.append("************************************************************").append(separator);
-		buffer.append("*                                                          *").append(separator);
-		buffer.append("*                                                          *").append(separator);
-		buffer.append("*                                                          *").append(separator);
-		buffer.append("*                                                          *").append(separator);
-		buffer.append("************************************************************").append(separator).append(separator);
-		buffer.append("============================================").append(separator);
+        buffer.append("Actual dataset (" + dataSourceId + ") with " + numAttributes + " attribute(s) and " + numRows + " row(s)");
 
+        buffer.append(separator);
 
-		return super.toString();
+        buffer.append(super.toString());
 
-
+		return buffer.toString();
 	}
 
 
