@@ -143,7 +143,7 @@ public class ActualDataSet extends DataSet {
                 arrayOfAttributes[i] = new Attribute(attributes[i].getName(), i, AttributeType.NUMERIC, reverseMatrix[i]);
             }
             else{
-                arrayOfAttributes[i] = new Attribute(attributes[i].getName(), i, AttributeType.NOMINAL, reverseMatrix[i]);
+                arrayOfAttributes[i] = new Attribute(attributes[i].getName(), i+1, AttributeType.NOMINAL, reverseMatrix[i]);
             }
         }
 
