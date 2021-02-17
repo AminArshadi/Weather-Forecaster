@@ -41,44 +41,10 @@ public class ActualDataSet extends DataSet {
         dataSourceId = reader.getSourceId();
         matrix = reader.getData();
 
+
+        attributes = attributeCreater(numAttributes, reader.getAttributeNames());
+
         
-        
-
-        //attributes = attributeCreater(numAttributes, attributeNames);
-
-        ActualDataSet reader2 = new ActualDataSet(reader);
-
-
-
-
-
-
-
-        String[][] reverseMatrix = new String[numAttributes][numRows];
-
-        for (int i=0; i < numRows; i++){
-
-            for (int j=0; j < matrix[i].length; j++){
-
-                reverseMatrix[j][i] = matrix[i][j];
-            }
-        }
-
-        Attribute[] arrayOfAttributes = new Attribute[reverseMatrix.length];
-        String[] attributeNames = reader.getAttributeNames();
-
-        for (int i=0; i < reverseMatrix.length; i++){
-
-            if (Util.isArrayNumeric(reverseMatrix[i])){
-
-                arrayOfAttributes[i] = new Attribute(attributeNames[i], i, AttributeType.NUMERIC, reverseMatrix[i]);
-            }
-            else{
-                arrayOfAttributes[i] = new Attribute(attributeNames[i], i, AttributeType.NOMINAL, reverseMatrix[i]);
-            }
-        }
-
-        attributes = arrayOfAttributes;
 
 	}
 
@@ -151,15 +117,125 @@ public class ActualDataSet extends DataSet {
 
 
 
+
+
+
+
+
+
+        String[][] reverseMatrix = new String[numAttributes][numRows];
+
+        for (int i=0; i < numRows; i++){
+
+            for (int j=0; j < matrix[i].length; j++){
+
+                reverseMatrix[j][i] = matrix[i][j];
+            }
+        }
+
+        Attribute[] arrayOfAttributes = new Attribute[reverseMatrix.length];
+        //String[] attributeNames = reader.getAttributeNames();
+
+        for (int i=0; i < reverseMatrix.length; i++){
+
+            if (Util.isArrayNumeric(reverseMatrix[i])){
+
+                arrayOfAttributes[i] = new Attribute(attributes[i].getName(), i, AttributeType.NUMERIC, reverseMatrix[i]);
+            }
+            else{
+                arrayOfAttributes[i] = new Attribute(attributes[i].getName(), i, AttributeType.NOMINAL, reverseMatrix[i]);
+            }
+        }
+
+
+
+
         int[] rows = new int[numRows];
         for (int i=0; i < numRows; i++){
             rows[i] = i;
         }
 
         //ActualDataSet mainSource = new ActualDataSet(reader2);
+        VirtualDataSet result = new VirtualDataSet(this, rows, arrayOfAttributes);
 
         
-        return new VirtualDataSet(a, rows, attributes);;
+        return result;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+        public VirtualDataSet toVirtual() {
+        // WRITE YOUR CODE HERE!
+
+        //Nominal First 
+
+        int[] rows = new int[numRows-1];
+
+        for(int i = 0; i < numRows; i++){
+
+            int x = 0;
+
+            for(int j = 0;j < numRows; i++){
+
+                if(matrix[0][i].isequal(matrix[0][j])){
+
+                    rows[x] = j;
+                    x ++;
+                }
+                if (j == numRows - 1) {
+                    Attribute[] arrayOfAttributes = new [numAttributes - 1];
+
+                    for(int a = 1; a < numAttributes; a++){
+
+                        String[] temp = new String[rows.length];
+
+                        for(int y = 0; y < rows.length;y++){
+
+                            int value = rows[y];
+                            temp[y] = matrix[a][y];
+                        }
+                        Attribute addition = new Attribute(matrix[a][0], a, AttributeType.NOMINAL, temp);
+                        arrayOfAttributes[a] = addition;
+                    }
+                    return VirtualDataSet(this, rows, arrayOfAttributes);
+                }
+            } 
+          }
+    }
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	}
@@ -274,6 +350,8 @@ public class ActualDataSet extends DataSet {
         }
         return a;
     }
+
+
 }
 
 

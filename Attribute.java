@@ -90,11 +90,11 @@ public class Attribute {
 	 */
 	public String[] getValues() {
 		// WRITE YOUR CODE HERE!
-		String[] tmp = new String[this.values.length];
+		String[] tmp2 = new String[this.values.length];
 		for (int i=0; i < this.values.length; i++){
-			tmp[i] = this.values[i];
+			tmp2[i] = this.values[i];
 		}
-		return tmp;
+		return tmp2;
 		//Remove the following line when this method has been implemented
 	}
 
@@ -115,7 +115,7 @@ public class Attribute {
 		for (int i=0; i < newValues.length; i++){
 			tmp[i] = newValues[i];
 		}
-		this.values = newValues;
+		this.values = tmp;
 	}
 
 	/**

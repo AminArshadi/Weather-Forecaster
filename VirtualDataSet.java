@@ -1,5 +1,6 @@
 // You are allowed to use LinkedList or other Collection classes in A2 and A3
 import java.util.LinkedList;
+import java.util.Arrays;
 
 /**
  * This class is used for representing a virtual dataset, that is, a dataset
@@ -43,6 +44,11 @@ public class VirtualDataSet extends DataSet {
 	 */
 	public VirtualDataSet(ActualDataSet source, int[] rows, Attribute[] attributes) {
 		// WRITE YOUR CODE HERE!
+		super();
+		attributes = attributes;
+		numRows = rows.length;
+		numAttributes = attributes.length;
+
 		this.source = source;
 
 		int[] temp = new int[rows.length];
@@ -65,7 +71,31 @@ public class VirtualDataSet extends DataSet {
 	 */
 	public String toString() {
 		// WRITE YOUR CODE HERE!
-		return super.toString();
+		StringBuffer buffer = new StringBuffer();
+
+		String separator = System.getProperty("line.separator");
+
+        buffer.append("Virtual dataset with " + numAttributes + " attribute(s) and " + numRows + " row(s)");
+
+        buffer.append(separator);
+
+        buffer.append("- Dataset is a view over " + this.source.getSourceId());
+
+        buffer.append(separator);
+
+        LinkedList<Integer> mapCollection = new LinkedList<Integer>();
+        for (int i=0; i < this.map.length; i++){
+        	mapCollection.add(this.map[i]);
+        }
+
+        buffer.append("- Row indices in this dataset (w.r.t. its source dataset): " + mapCollection);
+
+        buffer.append(separator);
+
+        buffer.append(super.toString());
+
+		return buffer.toString();
+
 
 		//??????????????????????????????????????????????????????????????
 	}
@@ -105,7 +135,7 @@ public class VirtualDataSet extends DataSet {
 		//Attribute[] tempAttributes = new Attribute[this.attributes.length];
 
 		String[] splitAttributeString = this.attributes[attributeIndex].getValues();
-		String[] nDSplitAttributeString = getUniqueAttribute(this.attributes[attributeIndex].getValues());
+		String[] nDSplitAttributeString = getUniqueAttributeNOMINAL(this.attributes[attributeIndex].getValues());
 
 		// here we are creating the map (row numbers)
 
@@ -118,44 +148,36 @@ public class VirtualDataSet extends DataSet {
 
 			for (int j = 0; j < splitAttributeString.length; j++) {
 
-				if (nDSplitAttributeString[i].equals(splitAttributeString[j])){
+				if ((nDSplitAttributeString[i].equals(splitAttributeString[j])) && (j == 0)){
+
+					tempIntArray[j] = -1;
+				}
+				else if (nDSplitAttributeString[i].equals(splitAttributeString[j])){
 
 					tempIntArray[j] = j;
 				}
 			}
-			twoDMap[i] = tempIntArray;
-		}
+			if (tempIntArray[0] == -1){
+				tempIntArray[0] = 0;
+				twoDMap[i] = getUniqueAttributeNUMERS(tempIntArray);
+				sort(twoDMap[i]);
 
-
-		// here and in the next nested loop we are removing extra 0's from our map's sub-arrays
-
-		int counter = 0;
-
-		for (int i = 0; i < twoDMap.length; i++) {
-
-			for (int j = 0; j < twoDMap[i].length; j++){
-
-				if ((j != 0) && (twoDMap[i][j] == 0)){
-					counter++;
+			}
+			else{
+				tempIntArray = getUniqueAttributeNUMERS(tempIntArray);
+				int[] tempIntArray2 = new int[tempIntArray.length - 1];
+				int counter = 0;
+				for (int n=1; n < tempIntArray.length; n++){
+					tempIntArray2[counter++] = tempIntArray[n];
 				}
+				twoDMap[i] = tempIntArray2;
+				sort(twoDMap[i]);
 			}
+			
+
+			//System.out.println(Arrays.toString(twoDMap[i]));
 		}
 
-
-		int[] temp;
-
-		for (int i = 0; i < twoDMap.length; i++) {
-
-			temp = new int[twoDMap[i].length - counter];
-
-			for (int j = 0; j < temp.length; j++){
-
-				temp[j] = twoDMap[i][j];
-
-			}
-
-			twoDMap[i] = temp;
-		}
 
 
 
@@ -217,6 +239,11 @@ public class VirtualDataSet extends DataSet {
 
 
 		String[] splitAttributeString = this.attributes[attributeIndex].getValues();
+
+		//System.out.println(Arrays.toString(splitAttributeString));
+		//String[] nDSplitAttributeString = getUniqueAttributeNOMINAL(this.attributes[attributeIndex].getValues());
+		//System.out.println(Arrays.toString(nDSplitAttributeString));
+
 		String target = splitAttributeString[valueIndex];
 
 		// here we are creating the map (row numbers)
@@ -228,30 +255,80 @@ public class VirtualDataSet extends DataSet {
 		for (int n = 0; n < splitAttributeString.length; n++){
 
 			try {
-				if (Integer.parseInt(splitAttributeString[n]) <= Integer.parseInt(target)){
+
+				if ((Integer.parseInt(splitAttributeString[n]) <= Integer.parseInt(target)) && (n == 0)){
+					firstArray[n] = -1;
+				}
+				else if (Integer.parseInt(splitAttributeString[n]) <= Integer.parseInt(target)){
 					firstArray[n] = n;
 				}
 
-				else{
+
+
+				if ((Integer.parseInt(splitAttributeString[n]) > Integer.parseInt(target)) && (n == 0)){
+					secondArray[n] = -1;
+				}
+				else if (Integer.parseInt(splitAttributeString[n]) > Integer.parseInt(target)){
 					secondArray[n] = n;
 				}
+
 			}
 
 			catch (Exception e){
 
-				if (Float.parseFloat(splitAttributeString[n]) <= Float.parseFloat(target)){
+				if ((Float.parseFloat(splitAttributeString[n]) <= Float.parseFloat(target)) && (n == 0)){
+					firstArray[n] = -1;
+				}
+				else if ((Float.parseFloat(splitAttributeString[n]) <= Float.parseFloat(target))){
 					firstArray[n] = n;
 				}
 
-				else{
+
+
+				if ((Float.parseFloat(splitAttributeString[n]) > Float.parseFloat(target)) && (n == 0)){
+					secondArray[n] = -1;
+				}
+				else if ((Float.parseFloat(splitAttributeString[n]) > Float.parseFloat(target))){
 					secondArray[n] = n;
 				}
+
 			}
 		}
 		twoDMap[0] = firstArray;
 		twoDMap[1] = secondArray;
 
 
+		for (int i=0; i < twoDMap.length; i++){
+
+			if (twoDMap[i][0] == -1){
+				twoDMap[i][0] = 0;
+				twoDMap[i] = getUniqueAttributeNUMERS(twoDMap[i]);
+				sort(twoDMap[i]);
+
+			}
+			else{
+				twoDMap[i] = getUniqueAttributeNUMERS(twoDMap[i]);
+				int[] tempIntArray = new int[twoDMap[i].length - 1];
+				int counter = 0;
+				for (int n=1; n < twoDMap[i].length; n++){
+					tempIntArray[counter++] = twoDMap[i][n];
+				}
+				twoDMap[i] = tempIntArray;
+				sort(twoDMap[i]);
+			}
+
+		}
+
+		
+		//System.out.println(Arrays.toString(twoDMap[0]));
+		//System.out.println(Arrays.toString(twoDMap[1]));
+
+
+
+
+
+
+/*
 		// here and in the next nested loop we are removing extra 0's from our map's sub-arrays
 
 		int counter = 0;
@@ -281,7 +358,7 @@ public class VirtualDataSet extends DataSet {
 
 			twoDMap[i] = temp;
 		}
-
+*/
 
 		// here we are going thorugh each arrtibute (attributes have duplication) and make a new string array
 		//w.r.t the map and then update the String[] of each attribute that we are already.
@@ -303,9 +380,17 @@ public class VirtualDataSet extends DataSet {
 
 						tempString[j] = tempString2[j];
 					}
-
+					
 					this.attributes[n].replaceValues(tempString);
+					
+					
 			}
+			//for (int n = 0; n < this.attributes.length; n++){
+				//this.attributes[n].replaceValues(getUniqueAttributeNOMINAL(this.attributes[n].getValues()));
+			//}
+
+
+
 			this.map = twoDMap[i];
 
 			finalVirtualDataSetArray[i] = new VirtualDataSet(this.source, this.map, this.attributes);
@@ -400,44 +485,114 @@ public class VirtualDataSet extends DataSet {
 
 
 
-	private String[] getUniqueAttribute(String[] oldArray) {
-
-		String[] tempArray = new String[oldArray.length];
-
-		int count = 0;
-
-		for (int i = 0; i < numRows; i++) {
-			boolean found = false;
-
-			for (int j = 0; j < count; j++) {
-				if (oldArray[i].equals(tempArray[j])) {
-					found = true;
-					break;
-				}
-			}
-
-			if (!found) {
-				tempArray[count++] = oldArray[i];
-			}
+	private String[] getUniqueAttributeNOMINAL(String[] oldArray) {
+		String[] newArray = new String[oldArray.length];
+		for (int i = 0; i < newArray.length; i++) {
+			newArray[i] = oldArray[i];
 		}
+		int end = newArray.length;
+        for (int i = 0; i < end; i++) {
+            for (int j = i + 1; j < end; j++) {
+                if ((newArray[i] != null) && (newArray[j] != null) && (newArray[i].equals(newArray[j]))) {  
 
-		String[] newArray = new String[count];
+                    newArray[j] = newArray[end-1];
+                    end --;
+                    j --;
+                }
+            }
+        }
 
-		for (int i = 0; i < count; i++) {
-			newArray[i] = tempArray[i];
-		}
+        String[] emptyArray = new String[end];
 
-		return newArray;
+        for(int i = 0; i < end; i++){
+
+            emptyArray[i] = newArray[i];
+        }
+
+        // The number of empty or null elements in the chosen array are being counted.
+        String[] finalArray = new String[emptyArray.length];
+        int finalCounter = 0;
+        int ifNull = 0;
+
+        for (int k=0; k < emptyArray.length; k++){
+
+            if (emptyArray[k] == null || emptyArray[k].isEmpty()){
+
+                finalCounter ++;
+                ifNull ++;
+            }
+        }
+        if (ifNull > 0){
+            finalCounter --;
+        }
+        // The empty or null elements in the chosen array are being removed.
+        String[] a = new String[emptyArray.length - finalCounter];
+        int n = 0;
+
+        for (int k=0; k < emptyArray.length; k++){
+            if (!(emptyArray[k] == null || emptyArray[k].isEmpty())){
+                a[n] = emptyArray[k];
+                n ++;
+            }
+        }
+        // Replacing "null" with "MISSING" in arrays if there is any.
+        if (ifNull > 0){
+            a[a.length - 1] = "MISSING";
+        }
+        return a;
+    
 	}
 
 
 
 
 
+	private int[] getUniqueAttributeNUMERS(int[] oldArray) {
 
+		int end = oldArray.length;
+        for (int i = 0; i < end; i++) {
+            for (int j = i + 1; j < end; j++) {
+                if (oldArray[i] == oldArray[j]) {  
 
+                    oldArray[j] = oldArray[end-1];
+                    end --;
+                    j --;
+                }
+            }
+        }
 
+        int[] emptyArray = new int[end];
 
+        for(int i = 0; i < end; i++){
+
+            emptyArray[i] = oldArray[i];
+        }
+
+        return emptyArray;
+    
+	}
+
+	private void sort(int[] array) {
+
+    boolean swapped = true;
+    int j = 0;
+    int tmp;
+
+    while (swapped) {
+
+        swapped = false;
+        j++;
+
+        for (int i = 0; i < array.length - j; i++) {
+            if (array[i] > array[i + 1]) {
+                tmp = array[i];
+                array[i] = array[i + 1];
+                array[i + 1] = tmp;
+                swapped = true;
+            }
+        }
+    }
+	}
 
 
 
