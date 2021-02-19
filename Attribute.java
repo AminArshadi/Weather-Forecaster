@@ -128,8 +128,14 @@ public class Attribute {
 	 */
 	public Attribute clone() {
 		// WRITE YOUR CODE HERE!
-		Attribute a = new Attribute(this.name, this.absoluteIndex, this.type, this.values);
-		return a;
+		String[] tmp = new String[this.values.length];
+
+		for (int i=0; i < this.values.length; i++){
+			tmp[i] = this.values[i];
+		}
+
+		Attribute clonedAttribute = new Attribute(this.name, this.absoluteIndex, this.type, tmp);
+		return clonedAttribute;
 	}
 
 	/**
