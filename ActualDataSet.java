@@ -1,6 +1,4 @@
 import java.util.Scanner;
-import java.util.Arrays;
-
 
 
 /**
@@ -40,31 +38,24 @@ public class ActualDataSet extends DataSet {
 
         dataSourceId = reader.getSourceId();
         matrix = reader.getData();
-
-
         attributes = attributeCreater(numAttributes, reader.getAttributeNames());
 
-        
-
 	}
-
-
-
 
 /*
 	public static void main(String[] args) throws Exception {
 
-        System.out.print("Please enter the name of the CSV file to read: ");
+        //System.out.print("Please enter the name of the CSV file to read: ");
 
-        Scanner scanner = new Scanner(System.in);
+        //Scanner scanner = new Scanner(System.in);
 
-        String strFilename = scanner.nextLine();
+        //String strFilename = scanner.nextLine();
 
-        CSVReader dataset = new CSVReader(strFilename);
+        CSVReader dataset = new CSVReader("weather-nominal.csv");
 
         ActualDataSet actualDataSet = new ActualDataSet(dataset);
 
-        System.out.println(actualDataSet.toString());
+        System.out.println(actualDataSet.toVirtual().toString());
 
         //String[] array1 = {"a", "b", "c"};
 
@@ -80,15 +71,9 @@ public class ActualDataSet extends DataSet {
         //System.out.println(amin.clone());
         //System.out.println(amin.toString());
         //System.out.println(amin.clone() == amin);
-
-
     }
 
 */
-
-
-
-
 
 	/**
 	 * Implementation of DataSet's abstract getValueAt method for an actual dataset
@@ -115,14 +100,6 @@ public class ActualDataSet extends DataSet {
 	public VirtualDataSet toVirtual() {
 		// WRITE YOUR CODE HERE!
 
-
-
-
-
-
-
-
-
         String[][] reverseMatrix = new String[numAttributes][numRows];
 
         for (int i=0; i < numRows; i++){
@@ -132,9 +109,7 @@ public class ActualDataSet extends DataSet {
                 reverseMatrix[j][i] = matrix[i][j];
             }
         }
-
         Attribute[] arrayOfAttributes = new Attribute[reverseMatrix.length];
-        //String[] attributeNames = reader.getAttributeNames();
 
         for (int i=0; i < reverseMatrix.length; i++){
 
@@ -142,102 +117,20 @@ public class ActualDataSet extends DataSet {
 
                 arrayOfAttributes[i] = new Attribute(attributes[i].getName(), i, AttributeType.NUMERIC, reverseMatrix[i]);
             }
+
             else{
-                arrayOfAttributes[i] = new Attribute(attributes[i].getName(), i+1, AttributeType.NOMINAL, reverseMatrix[i]);
+                arrayOfAttributes[i] = new Attribute(attributes[i].getName(), i, AttributeType.NOMINAL, reverseMatrix[i]);
+
             }
         }
-
-
-
-
         int[] rows = new int[numRows];
         for (int i=0; i < numRows; i++){
+
             rows[i] = i;
         }
-
-        //ActualDataSet mainSource = new ActualDataSet(reader2);
         VirtualDataSet result = new VirtualDataSet(this, rows, arrayOfAttributes);
 
-        
         return result;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-        public VirtualDataSet toVirtual() {
-        // WRITE YOUR CODE HERE!
-
-        //Nominal First 
-
-        int[] rows = new int[numRows-1];
-
-        for(int i = 0; i < numRows; i++){
-
-            int x = 0;
-
-            for(int j = 0;j < numRows; i++){
-
-                if(matrix[0][i].isequal(matrix[0][j])){
-
-                    rows[x] = j;
-                    x ++;
-                }
-                if (j == numRows - 1) {
-                    Attribute[] arrayOfAttributes = new [numAttributes - 1];
-
-                    for(int a = 1; a < numAttributes; a++){
-
-                        String[] temp = new String[rows.length];
-
-                        for(int y = 0; y < rows.length;y++){
-
-                            int value = rows[y];
-                            temp[y] = matrix[a][y];
-                        }
-                        Attribute addition = new Attribute(matrix[a][0], a, AttributeType.NOMINAL, temp);
-                        arrayOfAttributes[a] = addition;
-                    }
-                    return VirtualDataSet(this, rows, arrayOfAttributes);
-                }
-            } 
-          }
-    }
-
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	}
 
 	/**
@@ -267,6 +160,11 @@ public class ActualDataSet extends DataSet {
 
 
 
+
+
+
+
+
 	private Attribute[] attributeCreater(int numAttributes, String[] attributeNames){
 		Attribute[] arrayOfAttributes = new Attribute[numAttributes];
 		AttributeType type1 = AttributeType.NUMERIC;
@@ -287,6 +185,8 @@ public class ActualDataSet extends DataSet {
         } 
         return arrayOfAttributes;
 	}
+
+
 
 	private String[] getUniqueAttribute(int column) {
         String[][] reverseMatrix = new String[numAttributes][numRows];
@@ -350,10 +250,4 @@ public class ActualDataSet extends DataSet {
         }
         return a;
     }
-
-
 }
-
-
-
-
