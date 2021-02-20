@@ -332,7 +332,7 @@ public class VirtualDataSet extends DataSet {
 		System.out.println("THE WEATHER-NOMINAL DATASET:");
 		System.out.println();
 
-		ActualDataSet figure5Actual = new ActualDataSet(new CSVReader("weather-nominal.csv"));
+		ActualDataSet figure5Actual = new ActualDataSet(new CSVReader("credit-info.csv"));
 
 		System.out.println(figure5Actual);
 
@@ -342,7 +342,7 @@ public class VirtualDataSet extends DataSet {
 		System.out.println();
 
 		VirtualDataSet[] figure5Partitions = figure5Virtual
-				.partitionByNominallAttribute(figure5Virtual.getAttributeIndex("outlook"));
+				.partitionByNominallAttribute(figure5Virtual.getAttributeIndex("checking_status"));
 
 		for (int i = 0; i < figure5Partitions.length; i++)
 			System.out.println("Partition " + i + ": " + figure5Partitions[i]);
@@ -513,4 +513,8 @@ public class VirtualDataSet extends DataSet {
         }
     }
 	}
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> efdb87871d85573e1cab5f6bc709da6c96bfd168
