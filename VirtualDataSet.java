@@ -1,6 +1,5 @@
 // You are allowed to use LinkedList or other Collection classes in A2 and A3
 import java.util.LinkedList;
-import java.util.Arrays;
 
 /**
  * This class is used for representing a virtual dataset, that is, a dataset
@@ -45,9 +44,13 @@ public class VirtualDataSet extends DataSet {
 	public VirtualDataSet(ActualDataSet source, int[] rows, Attribute[] attributes) {
 		// WRITE YOUR CODE HERE!
 		super();
-		attributes = attributes;
 		numRows = rows.length;
 		numAttributes = attributes.length;
+		Attribute[] copiedAttributes = new Attribute[attributes.length];
+		for (int i=0; i < attributes.length; i++){
+			copiedAttributes[i] = attributes[i].clone();
+		}
+		this.attributes = copiedAttributes;
 
 		this.source = source;
 
@@ -56,14 +59,6 @@ public class VirtualDataSet extends DataSet {
 			temp[i] = rows[i];
 		}
 		this.map = temp;
-
-		Attribute[] copiedAttributes = new Attribute[attributes.length];
-		for (int i=0; i < attributes.length; i++){
-			copiedAttributes[i] = attributes[i].clone();
-			//copiedAttributes[i].replaceValues(getUniqueAttribute(copiedAttributes[i].getValues()));
-		}
-		this.attributes = copiedAttributes;
-
 	}
 
 	/**
@@ -79,7 +74,7 @@ public class VirtualDataSet extends DataSet {
 
         buffer.append(separator);
 
-        buffer.append("- Dataset is a view over " + this.source.getSourceId());
+        buffer.append(" - Dataset is a view over " + this.source.getSourceId());
 
         buffer.append(separator);
 
@@ -88,16 +83,13 @@ public class VirtualDataSet extends DataSet {
         	mapCollection.add(this.map[i]);
         }
 
-        buffer.append("- Row indices in this dataset (w.r.t. its source dataset): " + mapCollection);
+        buffer.append(" - Row indices in this dataset (w.r.t. its source dataset): " + mapCollection);
 
         buffer.append(separator);
 
         buffer.append(super.toString());
 
 		return buffer.toString();
-
-
-		//??????????????????????????????????????????????????????????????
 	}
 
 	/**
@@ -117,7 +109,6 @@ public class VirtualDataSet extends DataSet {
 		// WRITE YOUR CODE HERE!
 		return this.source;
 	}
-
 
 	/**
 	 * This method splits the virtual dataset over a nominal attribute. This process
@@ -173,50 +164,41 @@ public class VirtualDataSet extends DataSet {
 				twoDMap[i] = tempIntArray2;
 				sort(twoDMap[i]);
 			}
-			
-
-			//System.out.println(Arrays.toString(twoDMap[i]));
 		}
-
-
-
 
 		// here we are going thorugh each arrtibute (attributes have duplication) and make a new string array
 		//w.r.t the map and then update the String[] of each attribute that we are already.
 
 		VirtualDataSet[] finalVirtualDataSetArray = new VirtualDataSet[twoDMap.length];
+		Attribute[] finalAttribute = new Attribute[this.attributes.length - 1];
+		int counter = 0;
 		String[] tempString;
-
-		String[] tempString2;
+		String[] oneAttribute;
 
 		for (int i = 0; i < twoDMap.length; i++) {
-
+			
 			for (int n = 0; n < this.attributes.length; n++){
 
-				if (n != attributeIndex){
+				tempString = new String[twoDMap[i].length];
+				oneAttribute = this.attributes[n].getValues();
 
-					tempString = new String[twoDMap[i].length];
+				for (int j = 0; j < twoDMap[i].length; j++) {
 
-					for (int j = 0; j < twoDMap[i].length; j++) {
-						
-						tempString2 = this.attributes[n].getValues();
-
-						tempString[j] = tempString2[j];
-					}
-
-					this.attributes[n].replaceValues(tempString);
+					tempString[j] = oneAttribute[twoDMap[i][j]];
 				}
 
+				if (n != attributeIndex){
+					finalAttribute[counter] = new Attribute(attributes[n].getName(), attributes[n].getAbsoluteIndex(), attributes[n].getType(), getUniqueAttributeNOMINAL(tempString));
+					counter++;
+				}
 			}
+			counter = 0;
+
 			this.map = twoDMap[i];
 
-			finalVirtualDataSetArray[i] = new VirtualDataSet(this.source, this.map, this.attributes);
+			finalVirtualDataSetArray[i] = new VirtualDataSet(this.source, this.map, finalAttribute);
 		}
-
 		return finalVirtualDataSetArray;
-			
-
-			
 	}
 
 	/**
@@ -237,17 +219,10 @@ public class VirtualDataSet extends DataSet {
 	public VirtualDataSet[] partitionByNumericAttribute(int attributeIndex, int valueIndex) {
 		// WRITE YOUR CODE HERE!
 
-
 		String[] splitAttributeString = this.attributes[attributeIndex].getValues();
-
-		//System.out.println(Arrays.toString(splitAttributeString));
-		//String[] nDSplitAttributeString = getUniqueAttributeNOMINAL(this.attributes[attributeIndex].getValues());
-		//System.out.println(Arrays.toString(nDSplitAttributeString));
-
 		String target = splitAttributeString[valueIndex];
 
 		// here we are creating the map (row numbers)
-
 		int[][] twoDMap = new int[2][];
 		int[] firstArray = new int[splitAttributeString.length];
 		int[] secondArray = new int[splitAttributeString.length];
@@ -262,8 +237,6 @@ public class VirtualDataSet extends DataSet {
 				else if (Integer.parseInt(splitAttributeString[n]) <= Integer.parseInt(target)){
 					firstArray[n] = n;
 				}
-
-
 
 				if ((Integer.parseInt(splitAttributeString[n]) > Integer.parseInt(target)) && (n == 0)){
 					secondArray[n] = -1;
@@ -282,8 +255,6 @@ public class VirtualDataSet extends DataSet {
 				else if ((Float.parseFloat(splitAttributeString[n]) <= Float.parseFloat(target))){
 					firstArray[n] = n;
 				}
-
-
 
 				if ((Float.parseFloat(splitAttributeString[n]) > Float.parseFloat(target)) && (n == 0)){
 					secondArray[n] = -1;
@@ -304,104 +275,52 @@ public class VirtualDataSet extends DataSet {
 				twoDMap[i][0] = 0;
 				twoDMap[i] = getUniqueAttributeNUMERS(twoDMap[i]);
 				sort(twoDMap[i]);
-
 			}
+
 			else{
 				twoDMap[i] = getUniqueAttributeNUMERS(twoDMap[i]);
 				int[] tempIntArray = new int[twoDMap[i].length - 1];
 				int counter = 0;
+
 				for (int n=1; n < twoDMap[i].length; n++){
+
 					tempIntArray[counter++] = twoDMap[i][n];
 				}
+
 				twoDMap[i] = tempIntArray;
 				sort(twoDMap[i]);
 			}
-
 		}
-
-		
-		//System.out.println(Arrays.toString(twoDMap[0]));
-		//System.out.println(Arrays.toString(twoDMap[1]));
-
-
-
-
-
-
-/*
-		// here and in the next nested loop we are removing extra 0's from our map's sub-arrays
-
-		int counter = 0;
-
-		for (int i = 0; i < twoDMap.length; i++) {
-
-			for (int j = 0; j < twoDMap[i].length; j++){
-
-				if ((j != 0) && (twoDMap[i][j] == 0)){
-					counter++;
-				}
-			}
-		}
-
-
-		int[] temp;
-
-		for (int i = 0; i < twoDMap.length; i++) {
-
-			temp = new int[twoDMap[i].length - counter];
-
-			for (int j = 0; j < temp.length; j++){
-
-				temp[j] = twoDMap[i][j];
-
-			}
-
-			twoDMap[i] = temp;
-		}
-*/
 
 		// here we are going thorugh each arrtibute (attributes have duplication) and make a new string array
 		//w.r.t the map and then update the String[] of each attribute that we are already.
 
 		VirtualDataSet[] finalVirtualDataSetArray = new VirtualDataSet[twoDMap.length];
+		Attribute[] finalAttribute = new Attribute[this.attributes.length];
 		String[] tempString;
-
-		String[] tempString2;
+		String[] oneAttribute;
 
 		for (int i = 0; i < twoDMap.length; i++) {
 
 			for (int n = 0; n < this.attributes.length; n++){
 
-					tempString = new String[twoDMap[i].length];
+				tempString = new String[twoDMap[i].length];
+				oneAttribute = this.attributes[n].getValues();
 
-					for (int j = 0; j < twoDMap[i].length; j++) {
-						
-						tempString2 = this.attributes[n].getValues();
+				for (int j = 0; j < twoDMap[i].length; j++) {
 
-						tempString[j] = tempString2[j];
-					}
+					tempString[j] = oneAttribute[twoDMap[i][j]];
+				}
 					
-					this.attributes[n].replaceValues(tempString);
-					
-					
+				finalAttribute[n] = new Attribute(attributes[n].getName(), attributes[n].getAbsoluteIndex(), attributes[n].getType(), getUniqueAttributeNOMINAL(tempString));
 			}
-			//for (int n = 0; n < this.attributes.length; n++){
-				//this.attributes[n].replaceValues(getUniqueAttributeNOMINAL(this.attributes[n].getValues()));
-			//}
-
-
 
 			this.map = twoDMap[i];
 
-			finalVirtualDataSetArray[i] = new VirtualDataSet(this.source, this.map, this.attributes);
+			finalVirtualDataSetArray[i] = new VirtualDataSet(this.source, this.map, finalAttribute);
 		}
 
 		return finalVirtualDataSetArray;
-
-
-
-
-
 
 	}
 
@@ -526,20 +445,20 @@ public class VirtualDataSet extends DataSet {
             finalCounter --;
         }
         // The empty or null elements in the chosen array are being removed.
-        String[] a = new String[emptyArray.length - finalCounter];
+        String[] finalStringArray = new String[emptyArray.length - finalCounter];
         int n = 0;
 
         for (int k=0; k < emptyArray.length; k++){
             if (!(emptyArray[k] == null || emptyArray[k].isEmpty())){
-                a[n] = emptyArray[k];
+                finalStringArray[n] = emptyArray[k];
                 n ++;
             }
         }
         // Replacing "null" with "MISSING" in arrays if there is any.
         if (ifNull > 0){
-            a[a.length - 1] = "MISSING";
+            finalStringArray[finalStringArray.length - 1] = "MISSING";
         }
-        return a;
+        return finalStringArray;
     
 	}
 
@@ -574,26 +493,24 @@ public class VirtualDataSet extends DataSet {
 
 	private void sort(int[] array) {
 
-    boolean swapped = true;
+    boolean condition = true;
     int j = 0;
     int tmp;
 
-    while (swapped) {
+    while (condition) {
 
-        swapped = false;
+        condition = false;
         j++;
 
         for (int i = 0; i < array.length - j; i++) {
             if (array[i] > array[i + 1]) {
+
                 tmp = array[i];
                 array[i] = array[i + 1];
                 array[i + 1] = tmp;
-                swapped = true;
+                condition = true;
             }
         }
     }
 	}
-
-
-
 }

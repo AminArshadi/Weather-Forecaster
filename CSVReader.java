@@ -1,6 +1,5 @@
 import java.io.File;
 import java.util.Scanner;
-import java.util.Arrays;
 
 /**
  * This class provides an implementation of the DataReader interface for CSV
@@ -19,35 +18,6 @@ public class CSVReader implements DataReader {
     private String fileName;
     
 
-
-/*
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-
-    public static void main(String[] args) throws Exception {
-
-        System.out.print("Please enter the name of the CSV file to read: ");
-
-        Scanner scanner = new Scanner(System.in);
-
-        String strFilename = scanner.nextLine();
-
-        CSVReader dataset = new CSVReader(strFilename);
-
-        System.out.println(Arrays.deepToString(dataset.getData()));
-        System.out.println(dataset.getAttributeNames());
-        System.out.println(dataset.getNumberOfColumns());
-        System.out.println(dataset.getNumberOfDataRows());
-        System.out.println(dataset.getSourceId());
-    }
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-*/
-
-
-
-
-
     /**
      * Constructs a dataset by loading a CSV file
      * 
@@ -59,7 +29,6 @@ public class CSVReader implements DataReader {
         calculateDimensions(strFilename);
         instantiateFromFile(strFilename);
     }
-
 
     public String[] getAttributeNames() {
         // WRITE YOUR CODE HERE!
@@ -85,12 +54,6 @@ public class CSVReader implements DataReader {
         // WRITE YOUR CODE HERE!
         return numRows;
     }
-
-
-
-
-
-
 
     private void calculateDimensions(String strFilename) throws Exception {
 
@@ -149,7 +112,6 @@ public class CSVReader implements DataReader {
                     }
                 }
             }
-
             else if (counter < numRows + 2){
 
                 matrix[counter] = str.split(",(?=(?:[^\']*\'[^\']*\')*[^\']*$)");
@@ -201,27 +163,3 @@ public class CSVReader implements DataReader {
         return temMatrix2;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

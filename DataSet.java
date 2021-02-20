@@ -75,9 +75,9 @@ public abstract class DataSet {
 	 * @return (copy of) Attribute instance at position attributeIndex
 	 */
 	public Attribute getAttribute(int attributeIndex) {
-		//if (attributeIndex < 0 || attributeIndex >= numAttributes) {
-			//return null;
-		//}
+		if (attributeIndex < 0 || attributeIndex >= numAttributes) {
+			return null;
+		}
 		return attributes[attributeIndex].clone();
 	}
 
