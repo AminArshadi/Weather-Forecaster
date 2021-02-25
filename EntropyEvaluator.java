@@ -1,3 +1,8 @@
+
+
+import java.util.Arrays;
+
+
 /**
  * This class enables calculating (weighted-average) entropy values for a set of
  * datasets
@@ -20,17 +25,26 @@ public class EntropyEvaluator {
 	 */
 	public static double evaluate(DataSet[] partitions) {
 		// WRITE YOUR CODE HERE!
+
         String[] lastColumn;
         String[] nDLastColumn;
+        int numRowsOfOriginalDataSet = 0;
 		double result = 0.0;
+		double weightedResult = 0.0;
 		int conditionCounter = 0;
 		int[] conditionCounterSaver;
 
 
 		for (int i=0; i < partitions.length; i++) {
 
-			lastColumn = partitions[i]  . . . ??????? ;
-			nDLastColumn = getUniqueAttributeNOMINAL(lastColumn);     //partitions[i].getAttribute( ??? partitions[i].map.length - 1 ??? ).getValues();
+			numRowsOfOriginalDataSet += partitions[i].numRows;
+		}
+
+		for (int i=0; i < partitions.length; i++) {
+
+			lastColumn = getLastFullColumn(partitions[i]);
+
+			nDLastColumn = getUniqueAttributeNOMINAL(lastColumn);
 
 			conditionCounterSaver = new int[nDLastColumn.length];
 
@@ -49,11 +63,17 @@ public class EntropyEvaluator {
 
 			for (int a=0; a < conditionCounterSaver.length; a++) {
 
-				result = result + ((-1) * ((double) firstConditionCounter / lastColumn.length) * log2(((double) firstConditionCounter / lastColumn.length)));
+				result = result + ((-1) * ((double) conditionCounterSaver[a] / lastColumn.length) * log2(((double) conditionCounterSaver[a] / lastColumn.length)));
 			}
+
+			double weight = ((double) lastColumn.length) / numRowsOfOriginalDataSet;
+
+			weightedResult = weightedResult + (weight * result);
+
+			result = 0.0;
 		}
 
-		return result;
+		return weightedResult;
 	}
 
 	/**
@@ -62,6 +82,7 @@ public class EntropyEvaluator {
 	 * @param x is the number to take the logarithm of
 	 * @return base-2 logarithm for x
 	 */
+
 	public static double log2(double x) {
 		return (Math.log(x) / Math.log(2));
 	}
@@ -76,6 +97,21 @@ public class EntropyEvaluator {
 
 
 
+/*
+	public static void main(String[] args) throws Exception {
+
+        ActualDataSet figure5Actual = new ActualDataSet(new CSVReader("weather-nominal.csv"));
+
+		System.out.println(figure5Actual);
+
+		VirtualDataSet figure5Virtual = figure5Actual.toVirtual();
+
+		VirtualDataSet[] figure5Partitions = figure5Virtual.partitionByNominallAttribute(figure5Virtual.getAttributeIndex("temperature"));
+
+		System.out.println(evaluate(figure5Partitions));
+    }
+
+*/
 
 
 
@@ -84,7 +120,33 @@ public class EntropyEvaluator {
 
 
 
-	private String[] getUniqueAttributeNOMINAL(String[] oldArray) {
+
+
+	private static String[] getLastFullColumn(DataSet partition) {
+
+		int lastColumnSize = partition.numRows;
+		int lastColumnIndex = partition.numAttributes;
+		String[] result = new String[lastColumnSize];
+
+		for (int i=0; i < lastColumnSize; i++){
+
+			result[i] = partition.getValueAt(i, lastColumnIndex);
+		}
+		return result;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+	private static String[] getUniqueAttributeNOMINAL(String[] oldArray) {
 		String[] newArray = new String[oldArray.length];
 		for (int i = 0; i < newArray.length; i++) {
 			newArray[i] = oldArray[i];
@@ -139,7 +201,6 @@ public class EntropyEvaluator {
             finalStringArray[finalStringArray.length - 1] = "MISSING";
         }
         return finalStringArray;
-    
 	}
 }
 

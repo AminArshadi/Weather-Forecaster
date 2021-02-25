@@ -99,7 +99,14 @@ public class VirtualDataSet extends DataSet {
 	 */
 	public String getValueAt(int row, int attributeIndex) {
 		// WRITE YOUR CODE HERE!
-		return this.source.getValueAt(row, attributeIndex /*?????????????????????????????????????????????*/);
+		try{
+			return this.source.getValueAt(map[row], attributeIndex);
+		}
+
+		catch(Exception e) {
+			return null;
+		}
+		
 	}
 
 	/**
@@ -332,7 +339,7 @@ public class VirtualDataSet extends DataSet {
 		System.out.println("THE WEATHER-NOMINAL DATASET:");
 		System.out.println();
 
-		ActualDataSet figure5Actual = new ActualDataSet(new CSVReader("credit-info.csv"));
+		ActualDataSet figure5Actual = new ActualDataSet(new CSVReader("weather-nominal.csv"));
 
 		System.out.println(figure5Actual);
 
@@ -342,7 +349,7 @@ public class VirtualDataSet extends DataSet {
 		System.out.println();
 
 		VirtualDataSet[] figure5Partitions = figure5Virtual
-				.partitionByNominallAttribute(figure5Virtual.getAttributeIndex("checking_status"));
+				.partitionByNominallAttribute(figure5Virtual.getAttributeIndex("outlook"));
 
 		for (int i = 0; i < figure5Partitions.length; i++)
 			System.out.println("Partition " + i + ": " + figure5Partitions[i]);
@@ -513,8 +520,4 @@ public class VirtualDataSet extends DataSet {
         }
     }
 	}
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> efdb87871d85573e1cab5f6bc709da6c96bfd168

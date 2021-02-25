@@ -43,6 +43,11 @@ public class GainInfoItem {
 	 */
 	public GainInfoItem(String attributeName, AttributeType attributeType, double gainValue, String splitAt) {
 		// WRITE YOUR CODE HERE!
+		this.attributeName = attributeName;
+		this.attributeType = attributeType;
+		this.gainValue = gainValue;
+		this.splitAt = splitAt;
+
 	}
 
 	/**
@@ -50,9 +55,7 @@ public class GainInfoItem {
 	 */
 	public String getAttributeName() {
 		// WRITE YOUR CODE HERE!
-		
-		//Remove the following line when this method has been implemented
-		return null;
+		return this.attributeName;
 	}
 
 	/**
@@ -60,9 +63,7 @@ public class GainInfoItem {
 	 */
 	public AttributeType getAttributeType() {
 		// WRITE YOUR CODE HERE!
-		
-		//Remove the following line when this method has been implemented
-		return null;
+		return this.attributeType;
 	}
 
 	/**
@@ -70,9 +71,7 @@ public class GainInfoItem {
 	 */
 	public double getGainValue() {
 		// WRITE YOUR CODE HERE!
-		
-		//Remove the following line when this method has been implemented
-		return 0.0;
+		return this.gainValue;
 	}
 
 	/**
@@ -80,9 +79,7 @@ public class GainInfoItem {
 	 */
 	public String getSplitAt() {
 		// WRITE YOUR CODE HERE!
-		
-		//Remove the following line when this method has been implemented
-		return null;
+		return this.splitAt;
 	}
 
 	/**
@@ -105,6 +102,20 @@ public class GainInfoItem {
 	 * @param items is an array of GainInfoItem instances
 	 */
 	public static void reverseSort(GainInfoItem[] items) {
-		// WRITE YOUR CODE HERE!		
+		// WRITE YOUR CODE HERE!
+		GainInfoItem tmp;
+
+		for (int i=0; i < items.length; i++) {
+
+			for (int j=1; j < items.length - i; j++) {
+
+				if (items[j - 1].getGainValue() < items[j].getGainValue()){
+
+					tmp = items[j - 1];
+					items[j - 1] = items[j];
+					items[j] = tmp;
+				}
+			}
+		}
 	}
 }

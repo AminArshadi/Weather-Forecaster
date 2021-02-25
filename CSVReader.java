@@ -162,8 +162,4 @@ public class CSVReader implements DataReader {
         }
         return temMatrix2;
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> efdb87871d85573e1cab5f6bc709da6c96bfd168

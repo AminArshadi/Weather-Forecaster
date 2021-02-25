@@ -35,10 +35,11 @@ public class ActualDataSet extends DataSet {
 		super();
 		numAttributes = reader.getNumberOfColumns();
         numRows = reader.getNumberOfDataRows();
-
+        
         dataSourceId = reader.getSourceId();
         matrix = reader.getData();
         attributes = attributeCreater(numAttributes, reader.getAttributeNames());
+        
 
 	}
 
@@ -80,8 +81,13 @@ public class ActualDataSet extends DataSet {
 	 */
 	public String getValueAt(int row, int attributeIndex) {
 		// WRITE YOUR CODE HERE!
-		
-        return matrix[row][attributeIndex];
+        try{
+            return matrix[row][attributeIndex];
+        }
+
+        catch(Exception e) {
+            return null;
+        }
 	}
 
 	/**
@@ -188,6 +194,9 @@ public class ActualDataSet extends DataSet {
 
 
 
+
+
+
 	private String[] getUniqueAttribute(int column) {
         String[][] reverseMatrix = new String[numAttributes][numRows];
 
@@ -250,8 +259,4 @@ public class ActualDataSet extends DataSet {
         }
         return a;
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> efdb87871d85573e1cab5f6bc709da6c96bfd168

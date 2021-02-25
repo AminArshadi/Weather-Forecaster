@@ -16,8 +16,52 @@ public class InformationGainCalculator {
 	public static GainInfoItem[] calculateAndSortInformationGains(VirtualDataSet dataset) {
 		// WRITE YOUR CODE HERE!
 		
-		//Remove the following line when this method has been implemented
-		return null;
+		GainInfoItem[] gainInfoItem = new GainInfoItem[dataset.numAttributes - 1];
+
+		double entropyOfLastColumnOfDataset = EntropyEvaluator.evaluate(dataset.partitionByNominallAttribute(dataset.numAttributes - 1));
+
+					//System.out.println(entropyOfLastColumnOfDataset);
+
+		for (int i=0; i < dataset.numAttributes - 1; i++) {       // we don't go through the last column to calculate its gain
+
+			Attribute eachAttribute = dataset.getAttribute(i);
+
+			if (Util.isArrayNumeric(eachAttribute.getValues())) {
+
+				String[] numericColumn = eachAttribute.getValues();
+				double bestGain = 0.0;
+				double currentGain = (entropyOfLastColumnOfDataset - EntropyEvaluator.evaluate(dataset.partitionByNumericAttribute(i, 1)));
+
+				//System.out.println(currentGain);
+
+				String vlaueAtBestGain = numericColumn[0];
+
+				for (int n=0; n < numericColumn.length; n++){
+
+					currentGain = (entropyOfLastColumnOfDataset - EntropyEvaluator.evaluate(dataset.partitionByNumericAttribute(i, n)));
+
+					if (currentGain > bestGain){
+
+						bestGain = currentGain;
+						vlaueAtBestGain = numericColumn[n];
+					}
+				}
+				GainInfoItem gain = new GainInfoItem(dataset.attributes[i].getName(), AttributeType.NUMERIC, bestGain, vlaueAtBestGain);
+				gainInfoItem[i] = gain;
+			}
+
+			else {
+
+				double gainOfAttribute = (entropyOfLastColumnOfDataset - EntropyEvaluator.evaluate(dataset.partitionByNominallAttribute(i)));
+
+				GainInfoItem gain = new GainInfoItem(dataset.attributes[i].getName(), AttributeType.NOMINAL, gainOfAttribute, null);
+
+				gainInfoItem[i] = gain;
+
+			}
+		}
+		GainInfoItem.reverseSort(gainInfoItem);
+		return gainInfoItem;
 	}
 
 	public static void main(String[] args) throws Exception {
