@@ -1,3 +1,6 @@
+import java.util.Arrays;
+
+
 /**
  * This class enables the calculation and sorting of information gain values
  * 
@@ -18,11 +21,38 @@ public class InformationGainCalculator {
 		
 		GainInfoItem[] gainInfoItem = new GainInfoItem[dataset.numAttributes - 1];
 
-		double entropyOfLastColumnOfDataset = EntropyEvaluator.evaluate(dataset.partitionByNominallAttribute(dataset.numAttributes - 1));
+		String[] lastColumn = new String[dataset.numRows];
+		for (int i=0; i < dataset.numRows; i++){
+			lastColumn[i] = dataset.getValueAt(i, dataset.numAttributes - 1);
+		}
+		double entropyOfLastColumnOfDataset = 0.0;
+		String[] nDLastColumn = getUniqueAttributeNOMINAL(lastColumn);
+		int[] conditionCounterSaver = new int[nDLastColumn.length];
+		double result = 0.0;
+		int conditionCounter = 0;
 
-					//System.out.println(entropyOfLastColumnOfDataset);
+		for (int j=0; j < nDLastColumn.length; j++) {
 
-		for (int i=0; i < dataset.numAttributes - 1; i++) {       // we don't go through the last column to calculate its gain
+			for (int n=0; n < lastColumn.length; n++) {
+
+				if (nDLastColumn[j].equals(lastColumn[n])){
+
+					conditionCounter ++;
+				}
+			}
+			conditionCounterSaver[j] = conditionCounter;
+			conditionCounter = 0;
+		}
+
+		for (int a=0; a < conditionCounterSaver.length; a++) {
+
+			entropyOfLastColumnOfDataset = entropyOfLastColumnOfDataset + ((-1) * ((double) conditionCounterSaver[a] / lastColumn.length) * EntropyEvaluator.log2(((double) conditionCounterSaver[a] / lastColumn.length)));
+		}
+		
+
+
+
+		for (int i=0; i < dataset.numAttributes - 1; i++) {
 
 			Attribute eachAttribute = dataset.getAttribute(i);
 
@@ -30,9 +60,7 @@ public class InformationGainCalculator {
 
 				String[] numericColumn = eachAttribute.getValues();
 				double bestGain = 0.0;
-				double currentGain = (entropyOfLastColumnOfDataset - EntropyEvaluator.evaluate(dataset.partitionByNumericAttribute(i, 1)));
-
-				//System.out.println(currentGain);
+				double currentGain = 0.0;
 
 				String vlaueAtBestGain = numericColumn[0];
 
@@ -64,6 +92,15 @@ public class InformationGainCalculator {
 		return gainInfoItem;
 	}
 
+
+
+
+
+
+
+
+
+
 	public static void main(String[] args) throws Exception {
 
 		StudentInfo.display();
@@ -94,5 +131,79 @@ public class InformationGainCalculator {
 		for (int i = 0; i < items.length; i++) {
 			System.out.println(items[i]);
 		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	private static String[] getUniqueAttributeNOMINAL(String[] oldArray) {
+		String[] newArray = new String[oldArray.length];
+		for (int i = 0; i < newArray.length; i++) {
+			newArray[i] = oldArray[i];
+		}
+		int end = newArray.length;
+        for (int i = 0; i < end; i++) {
+            for (int j = i + 1; j < end; j++) {
+                if ((newArray[i] != null) && (newArray[j] != null) && (newArray[i].equals(newArray[j]))) {  
+
+                    newArray[j] = newArray[end-1];
+                    end --;
+                    j --;
+                }
+            }
+        }
+
+        String[] emptyArray = new String[end];
+
+        for(int i = 0; i < end; i++){
+
+            emptyArray[i] = newArray[i];
+        }
+
+        // The number of empty or null elements in the chosen array are being counted.
+        String[] finalArray = new String[emptyArray.length];
+        int finalCounter = 0;
+        int ifNull = 0;
+
+        for (int k=0; k < emptyArray.length; k++){
+
+            if (emptyArray[k] == null || emptyArray[k].isEmpty()){
+
+                finalCounter ++;
+                ifNull ++;
+            }
+        }
+        if (ifNull > 0){
+            finalCounter --;
+        }
+        // The empty or null elements in the chosen array are being removed.
+        String[] finalStringArray = new String[emptyArray.length - finalCounter];
+        int n = 0;
+
+        for (int k=0; k < emptyArray.length; k++){
+            if (!(emptyArray[k] == null || emptyArray[k].isEmpty())){
+                finalStringArray[n] = emptyArray[k];
+                n ++;
+            }
+        }
+        // Replacing "null" with "MISSING" in arrays if there is any.
+        if (ifNull > 0){
+            finalStringArray[finalStringArray.length - 1] = "MISSING";
+        }
+        return finalStringArray;
 	}
 }

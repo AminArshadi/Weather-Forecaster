@@ -100,19 +100,21 @@ public class EntropyEvaluator {
 /*
 	public static void main(String[] args) throws Exception {
 
-        ActualDataSet figure5Actual = new ActualDataSet(new CSVReader("weather-nominal.csv"));
+        ActualDataSet figure5Actual = new ActualDataSet(new CSVReader("weather-numeric.csv"));
+        //ActualDataSet figure5Actual = new ActualDataSet(new CSVReader("weather-nominal.csv"));
 
 		System.out.println(figure5Actual);
 
 		VirtualDataSet figure5Virtual = figure5Actual.toVirtual();
 
-		VirtualDataSet[] figure5Partitions = figure5Virtual.partitionByNominallAttribute(figure5Virtual.getAttributeIndex("temperature"));
+		VirtualDataSet[] figure5Partitions = figure5Virtual.partitionByNumericAttribute(figure5Virtual.getAttributeIndex("temperature"), 1);
+		//VirtualDataSet[] figure5Partitions = figure5Virtual.partitionByNominallAttribute(figure5Virtual.getAttributeIndex("temperature"));
+
 
 		System.out.println(evaluate(figure5Partitions));
     }
 
 */
-
 
 
 
@@ -128,10 +130,20 @@ public class EntropyEvaluator {
 		int lastColumnIndex = partition.numAttributes;
 		String[] result = new String[lastColumnSize];
 
-		for (int i=0; i < lastColumnSize; i++){
+		if (partition.numAttributes == ((VirtualDataSet) partition).getSourceDataSet().numAttributes){
 
-			result[i] = partition.getValueAt(i, lastColumnIndex);
+			for (int i=0; i < lastColumnSize; i++){
+				result[i] = partition.getValueAt(i, lastColumnIndex - 1);
+			}
 		}
+
+		else{
+
+			for (int i=0; i < lastColumnSize; i++){
+				result[i] = partition.getValueAt(i, lastColumnIndex);
+			}
+		}
+
 		return result;
 	}
 
@@ -203,13 +215,3 @@ public class EntropyEvaluator {
         return finalStringArray;
 	}
 }
-
-
-
-
-
-
-
-
-
-
