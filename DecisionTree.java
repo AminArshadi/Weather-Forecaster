@@ -97,7 +97,7 @@ public class DecisionTree {
 				VirtualDataSet[] tmp = node.data.partitionByNominallAttribute(i);
 				node.children = (Node<VirtualDataSet>[]) new Object[tmp.length];
 				for (int t=0; t < tmp.length; t ++){
-					node.children[t] = (Node<VirtualDataSet>) (Object) tmp[t];
+					node.children[t] = (Node<VirtualDataSet>) (Object) tmp[t]; // node.children[t] = Node(tmp[t]);
 				}
 			}
 			//for numeric attributes
@@ -120,7 +120,7 @@ public class DecisionTree {
 				VirtualDataSet[] tmp = node.data.partitionByNumericAttribute(i, j);
 				node.children = (Node<VirtualDataSet>[]) new Object[tmp.length];
 				for (int t=0; t < tmp.length; t ++){
-					node.children[t] = (Node<VirtualDataSet>) (Object) tmp[t];
+					node.children[t] = (Node<VirtualDataSet>) (Object) tmp[t]; // node.children[t] = Node(tmp[t]);
 				}
 
 				for (int n=0; n < node.children.length; n++) {
@@ -146,9 +146,85 @@ public class DecisionTree {
 	 */
 	private String toString(Node<VirtualDataSet> node, int indentDepth) {
 		// WRITE YOUR CODE HERE!
-		
-		// Remove the following line once you have implemented the method
-		return null;
+		StringBuffer buffer = new StringBuffer();
+
+		if(??????????){
+
+			buffer.append(createIndent(indentDepth));
+
+			buffer.append(/// we need to find a way to acess the last column (yes's or no's) of final partition. ////);
+
+			buffer.append(System.lineSeparator());
+
+		}
+		else{
+
+			build(node);
+
+			for (int i = 0; i < indentDepth; i++) {
+
+				String condition = node.children[i].getCondition();
+
+				if (i == 0){
+
+					buffer.append(createIndent(indentDepth));
+
+					buffer.append("if (" + condition + ") {");
+
+					buffer.append(System.lineSeparator());
+
+					buffer.append(toString(node.children[i], indentDepth + 1));
+
+					buffer.append(System.lineSeparator());
+
+					buffer.append(createIndent(indentDepth));
+
+					buffer.append("}");
+
+					buffer.append(System.lineSeparator());
+
+				}
+				else if ((i != 0) && (i != node.children.length - 1)){
+
+					buffer.append(createIndent(indentDepth));
+
+					buffer.append("else if (" + condition + ") {");
+
+					buffer.append(System.lineSeparator());
+
+					buffer.append(toString(node.children[i], indentDepth + 1));
+
+					buffer.append(System.lineSeparator());
+
+					buffer.append(createIndent(indentDepth));
+
+					buffer.append("}");
+
+					buffer.append(System.lineSeparator());
+
+				}
+				// (i == node.children.length - 1)
+				else{
+
+					buffer.append(createIndent(indentDepth));
+
+					buffer.append("else (" + condition + ") {");
+
+					buffer.append(System.lineSeparator());
+
+					buffer.append(toString(node.children[i], indentDepth + 1));
+
+					buffer.append(System.lineSeparator());
+
+					buffer.append(createIndent(indentDepth));
+
+					buffer.append("}");
+
+					buffer.append(System.lineSeparator());
+				}
+			}
+		}
+		return buffer.toString();
 	}
 
 	/**
@@ -163,7 +239,7 @@ public class DecisionTree {
 		}
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0; i < indentDepth; i++) {
-			buffer.append(' ');
+			buffer.append(' ');	
 		}
 		return buffer.toString();
 	}
