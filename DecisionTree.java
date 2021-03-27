@@ -14,6 +14,8 @@ public class DecisionTree {
 
 		Node(E data) {
 			this.data = data;
+
+			//children = (Node<E>[]) new Object[data.attributes.length];
 		}
 	}
 
@@ -45,36 +47,37 @@ public class DecisionTree {
 			throw new IllegalStateException("There should be at least one attribute.");
 		}
 		
-		boolean flag = false;
+		boolean flag = true;
 		for (int i=0; i < node.data.attributes.length; i++){
 			if (node.data.attributes[i].getValues().length >= 1){
-				flag = true;
+				flag = false;
 			}
 		}
 		if (flag){
 			throw new IllegalStateException("There should be at least one datapoint.");
 		}
 
+
 		//2. Base cases:
-		flag = true;
-
 		if (node.data.attributes.length == 1){
-			return;
+			toString();
 		}
 
-		else if (node.data.attributes[node.data.attributes.length - 1].getValues().length == 1){
-			return;
+		if (getUniqueAttributeNOMINAL( node.data.attributes[node.data.attributes.length - 1].getValues() ).length == 1){
+			toString();
 		}
 
-		for (int i=0; i < node.data.attributes.length - 1; i++){
+		flag = true;
+		for (int i=0; i < node.data.attributes.length - 2; i++){ // -2 becuase non-calss attributes
 			if (node.data.attributes[i].getValues().length > 1){
 				flag = false;
 			}
 		}
 		if (flag){
-			return;
+			toString();
 		}
 			
+
 		
 		//3. Recursive case:
 		else{
@@ -89,22 +92,28 @@ public class DecisionTree {
 
 				for (int n=0; n < node.data.attributes.length; n++){
 
-					if (node.data.attributes[n].getName() == a_max.getAttributeName()){
+					if (node.data.attributes[n].getName().equals( a_max.getAttributeName() )){
 						i = n;
 					}
 				}
 
 				VirtualDataSet[] tmp = node.data.partitionByNominallAttribute(i);
-				node.children = (Node<VirtualDataSet>[]) new Object[tmp.length];
+				node.children = new Node[tmp.length]; //children = (Node<E>[]) new Object[data.attributes.length];
+
 				for (int t=0; t < tmp.length; t ++){
-					node.children[t] = (Node<VirtualDataSet>) (Object) tmp[t]; // node.children[t] = Node(tmp[t]);
+					node.children[t] = new Node<VirtualDataSet>(tmp[t]);
+				}
+
+				for (int n=0; n < node.children.length; n++) {
+					build(node.children[n]);
 				}
 			}
+
 			//for numeric attributes
 			else{
 				for (int n=0; n < node.data.attributes.length; n++){
 
-					if (node.data.attributes[n].getName() == a_max.getAttributeName()){
+					if (node.data.attributes[n].getName().equals( a_max.getAttributeName() )){
 						i = n;
 					}
 				}
@@ -112,18 +121,20 @@ public class DecisionTree {
 
 					String[] targetRow = node.data.attributes[i].getValues();
 
-					if (targetRow[k] == a_max.getSplitAt()){
+					if (targetRow[k].equals( a_max.getSplitAt() )){
 						j = k;
 					}
 				}
 
 				VirtualDataSet[] tmp = node.data.partitionByNumericAttribute(i, j);
-				node.children = (Node<VirtualDataSet>[]) new Object[tmp.length];
+				node.children = new Node[tmp.length];
+
 				for (int t=0; t < tmp.length; t ++){
-					node.children[t] = (Node<VirtualDataSet>) (Object) tmp[t]; // node.children[t] = Node(tmp[t]);
+					node.children[t] = new Node<VirtualDataSet>(tmp[t]);
 				}
 
-				for (int n=0; n < node.children.length; n++) {
+				for (int n=1; n < node.children.length - 1; n++) {
+					//System.out.println("here");
 					build(node.children[n]);
 				}
 			}
@@ -148,22 +159,42 @@ public class DecisionTree {
 		// WRITE YOUR CODE HERE!
 		StringBuffer buffer = new StringBuffer();
 
-		if(??????????){
+		GainInfoItem[] check = InformationGainCalculator.calculateAndSortInformationGains(node.data); // if (check[0] == 0.0) is true, we know that we should return yes or no becuase we cannot go any further.
+		//System.out.println("bbb");
+		if(check[0].getGainValue() == 0.0){
 
-			buffer.append(createIndent(indentDepth));
+			//System.out.println("aaa");
 
-			buffer.append(/// we need to find a way to acess the last column (yes's or no's) of final partition. ////);
+			buffer.append(createIndent(indentDepth + 1));
+
+			String classAttributeName = node.data.attributes[node.data.attributes.length - 1].getName();
+			String[] classAttributeValue = getUniqueAttributeNOMINAL(node.data.attributes[node.data.attributes.length - 1].getValues());
+
+			buffer.append(classAttributeName + " = " + classAttributeValue[0]); /// we need to find a way to acess the last column (yes's or no's) of final partition. ////
 
 			buffer.append(System.lineSeparator());
 
 		}
+		else if(node.children == null){
+			//System.out.println("kkk");
+			buffer.append(createIndent(indentDepth + 1));
+
+			String classAttributeName = node.data.attributes[node.data.attributes.length - 1].getName();
+			String[] classAttributeValue = getUniqueAttributeNOMINAL(node.data.attributes[node.data.attributes.length - 1].getValues());
+
+			buffer.append(classAttributeName + " = " + classAttributeValue[0]); /// we need to find a way to acess the last column (yes's or no's) of final partition. ////
+
+			buffer.append(System.lineSeparator());
+			
+		}
 		else{
 
-			build(node);
+			//build(node);
+			//System.out.println("aaa");
 
-			for (int i = 0; i < indentDepth; i++) {
+			for (int i = 0; i < node.children.length; i++) {
 
-				String condition = node.children[i].getCondition();
+				String condition = node.children[i].data.getCondition();
 
 				if (i == 0){
 
@@ -175,7 +206,7 @@ public class DecisionTree {
 
 					buffer.append(toString(node.children[i], indentDepth + 1));
 
-					buffer.append(System.lineSeparator());
+					//buffer.append(System.lineSeparator());
 
 					buffer.append(createIndent(indentDepth));
 
@@ -194,7 +225,7 @@ public class DecisionTree {
 
 					buffer.append(toString(node.children[i], indentDepth + 1));
 
-					buffer.append(System.lineSeparator());
+					//buffer.append(System.lineSeparator());
 
 					buffer.append(createIndent(indentDepth));
 
@@ -208,13 +239,13 @@ public class DecisionTree {
 
 					buffer.append(createIndent(indentDepth));
 
-					buffer.append("else (" + condition + ") {");
+					buffer.append("else if (" + condition + ") {");
 
 					buffer.append(System.lineSeparator());
 
 					buffer.append(toString(node.children[i], indentDepth + 1));
 
-					buffer.append(System.lineSeparator());
+					//buffer.append(System.lineSeparator());
 
 					buffer.append(createIndent(indentDepth));
 
@@ -262,4 +293,87 @@ public class DecisionTree {
 
 		System.out.println(dtree);
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	private static String[] getUniqueAttributeNOMINAL(String[] oldArray) {
+		String[] newArray = new String[oldArray.length];
+		for (int i = 0; i < newArray.length; i++) {
+			newArray[i] = oldArray[i];
+		}
+		int end = newArray.length;
+        for (int i = 0; i < end; i++) {
+            for (int j = i + 1; j < end; j++) {
+                if ((newArray[i] != null) && (newArray[j] != null) && (newArray[i].equals(newArray[j]))) {  
+
+                    newArray[j] = newArray[end-1];
+                    end --;
+                    j --;
+                }
+            }
+        }
+
+        String[] emptyArray = new String[end];
+
+        for(int i = 0; i < end; i++){
+
+            emptyArray[i] = newArray[i];
+        }
+
+        // The number of empty or null elements in the chosen array are being counted.
+        String[] finalArray = new String[emptyArray.length];
+        int finalCounter = 0;
+        int ifNull = 0;
+
+        for (int k=0; k < emptyArray.length; k++){
+
+            if (emptyArray[k] == null || emptyArray[k].isEmpty()){
+
+                finalCounter ++;
+                ifNull ++;
+            }
+        }
+        if (ifNull > 0){
+            finalCounter --;
+        }
+        // The empty or null elements in the chosen array are being removed.
+        String[] finalStringArray = new String[emptyArray.length - finalCounter];
+        int n = 0;
+
+        for (int k=0; k < emptyArray.length; k++){
+            if (!(emptyArray[k] == null || emptyArray[k].isEmpty())){
+                finalStringArray[n] = emptyArray[k];
+                n ++;
+            }
+        }
+        // Replacing "null" with "MISSING" in arrays if there is any.
+        if (ifNull > 0){
+            finalStringArray[finalStringArray.length - 1] = "MISSING";
+        }
+        return finalStringArray;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 }
