@@ -254,7 +254,9 @@ public class DecisionTree {
 		StudentInfo.display();
 
 		if (args == null || args.length == 0) {
-			throw new IllegalArgumentException();
+			System.out.println("Expected a file name as argument!");
+			System.out.println("Usage: java DecisionTree <file name>");
+			return;
 		}
 
 		String strFilename = args[0];
