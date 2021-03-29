@@ -46,34 +46,30 @@ public class DecisionTree {
 		if (node.data.attributes.length < 1){
 			throw new IllegalStateException("There should be at least one attribute.");
 		}
-		
-		boolean flag = true;
-		for (int i=0; i < node.data.attributes.length; i++){
-			if (node.data.attributes[i].getValues().length >= 1){
-				flag = false;
-			}
-		}
-		if (flag){
+
+		if (node.data.numRows == 0){
 			throw new IllegalStateException("There should be at least one datapoint.");
 		}
 
 
 		//2. Base cases:
+		//boolean flag = true;
+		//for (int i=0; i < node.data.attributes.length - 2; i++){ // -2 becuase non-calss attributes ???????????????
+			//if (node.data.attributes[i].getValues().length > 1){
+				//flag = false;
+			//}
+		//}
+
 		if (node.data.attributes.length == 1){
 			toString();
 		}
 
-		if (getUniqueAttributeNOMINAL( node.data.attributes[node.data.attributes.length - 1].getValues() ).length == 1){
+		else if (node.data.attributes[node.data.attributes.length - 1].getValues().length == 1){
 			toString();
 		}
 
-		flag = true;
-		for (int i=0; i < node.data.attributes.length - 2; i++){ // -2 becuase non-calss attributes
-			if (node.data.attributes[i].getValues().length > 1){
-				flag = false;
-			}
-		}
-		if (flag){
+		
+		else if (node.data.numRows < 1){
 			toString();
 		}
 			
@@ -98,7 +94,7 @@ public class DecisionTree {
 				}
 
 				VirtualDataSet[] tmp = node.data.partitionByNominallAttribute(i);
-				node.children = new Node[tmp.length]; //children = (Node<E>[]) new Object[data.attributes.length];
+				node.children = new Node[tmp.length];
 
 				for (int t=0; t < tmp.length; t ++){
 					node.children[t] = new Node<VirtualDataSet>(tmp[t]);
@@ -117,9 +113,10 @@ public class DecisionTree {
 						i = n;
 					}
 				}
-				for (int k=0; k < node.data.attributes[i].getValues().length; k++){
 
-					String[] targetRow = node.data.attributes[i].getValues();
+				String[] targetRow = node.data.attributes[i].getValues(); // node.data.attributes[i].getValues();   //??????????????
+
+				for (int k=0; k < targetRow.length; k++){
 
 					if (targetRow[k].equals( a_max.getSplitAt() )){
 						j = k;
@@ -133,7 +130,7 @@ public class DecisionTree {
 					node.children[t] = new Node<VirtualDataSet>(tmp[t]);
 				}
 
-				for (int n=1; n < node.children.length - 1; n++) {
+				for (int n=0; n < node.children.length; n++) { //??????????????????????
 					//System.out.println("here");
 					build(node.children[n]);
 				}
@@ -168,7 +165,7 @@ public class DecisionTree {
 			buffer.append(createIndent(indentDepth + 1));
 
 			String classAttributeName = node.data.attributes[node.data.attributes.length - 1].getName();
-			String[] classAttributeValue = getUniqueAttributeNOMINAL(node.data.attributes[node.data.attributes.length - 1].getValues());
+			String[] classAttributeValue = node.data.attributes[node.data.attributes.length - 1].getValues();
 
 			buffer.append(classAttributeName + " = " + classAttributeValue[0]); /// we need to find a way to acess the last column (yes's or no's) of final partition. ////
 
@@ -180,7 +177,7 @@ public class DecisionTree {
 			buffer.append(createIndent(indentDepth + 1));
 
 			String classAttributeName = node.data.attributes[node.data.attributes.length - 1].getName();
-			String[] classAttributeValue = getUniqueAttributeNOMINAL(node.data.attributes[node.data.attributes.length - 1].getValues());
+			String[] classAttributeValue = node.data.attributes[node.data.attributes.length - 1].getValues();
 
 			buffer.append(classAttributeName + " = " + classAttributeValue[0]); /// we need to find a way to acess the last column (yes's or no's) of final partition. ////
 
@@ -206,8 +203,6 @@ public class DecisionTree {
 
 					buffer.append(toString(node.children[i], indentDepth + 1));
 
-					//buffer.append(System.lineSeparator());
-
 					buffer.append(createIndent(indentDepth));
 
 					buffer.append("}");
@@ -215,26 +210,7 @@ public class DecisionTree {
 					buffer.append(System.lineSeparator());
 
 				}
-				else if ((i != 0) && (i != node.children.length - 1)){
-
-					buffer.append(createIndent(indentDepth));
-
-					buffer.append("else if (" + condition + ") {");
-
-					buffer.append(System.lineSeparator());
-
-					buffer.append(toString(node.children[i], indentDepth + 1));
-
-					//buffer.append(System.lineSeparator());
-
-					buffer.append(createIndent(indentDepth));
-
-					buffer.append("}");
-
-					buffer.append(System.lineSeparator());
-
-				}
-				// (i == node.children.length - 1)
+				
 				else{
 
 					buffer.append(createIndent(indentDepth));
@@ -244,8 +220,6 @@ public class DecisionTree {
 					buffer.append(System.lineSeparator());
 
 					buffer.append(toString(node.children[i], indentDepth + 1));
-
-					//buffer.append(System.lineSeparator());
 
 					buffer.append(createIndent(indentDepth));
 
@@ -364,16 +338,4 @@ public class DecisionTree {
         }
         return finalStringArray;
 	}
-
-
-
-
-
-
-
-
-
-
-
-
 }
