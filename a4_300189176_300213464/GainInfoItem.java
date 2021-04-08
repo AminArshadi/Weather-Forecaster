@@ -96,7 +96,6 @@ public class GainInfoItem {
 	 * @param items is an array of GainInfoItem instances
 	 */
 	public static void reverseSort(GainInfoItem[] items) {
-
 		if (items == null)
 			throw new NullPointerException("Argument --items-- in method --reverseSort-- cannot be null.");
 

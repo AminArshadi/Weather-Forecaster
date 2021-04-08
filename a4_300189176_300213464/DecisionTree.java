@@ -14,8 +14,6 @@ public class DecisionTree {
 
 		Node(E data) {
 			this.data = data;
-
-			//children = (Node<E>[]) new Object[data.attributes.length];
 		}
 	}
 
@@ -26,6 +24,11 @@ public class DecisionTree {
 	 *             decision tree is to be built
 	 */
 	public DecisionTree(ActualDataSet data) {
+		//Edge cases:
+		if ((data == null) || (! (data instanceof ActualDataSet))){
+			throw new IllegalArgumentException("Argument --data-- in method --DecisionTree-- cannot be null nor have any other type except ActualDataSet.");
+		}
+		//code:
 		root = new Node<VirtualDataSet>(data.toVirtual());
 		build(root);
 	}
@@ -38,12 +41,13 @@ public class DecisionTree {
 	@SuppressWarnings("unchecked")
 	private void build(Node<VirtualDataSet> node) {
 		// WRITE YOUR CODE HERE!
+
 		//1. Edge cases:
-		if (node == null){
+		if ((node == null) || (node.data == null)){
 			throw new NullPointerException("Argument --node-- in method --build-- cannot be null.");
 		}
 
-		if (node.data.attributes.length < 1){
+		if (node.data.numAttributes < 1){
 			throw new IllegalStateException("There should be at least one attribute.");
 		}
 
@@ -53,28 +57,19 @@ public class DecisionTree {
 
 
 		//2. Base cases:
-		//boolean flag = true;
-		//for (int i=0; i < node.data.attributes.length - 2; i++){ // -2 becuase non-calss attributes ???????????????
-			//if (node.data.attributes[i].getValues().length > 1){
-				//flag = false;
-			//}
-		//}
-
-		if (node.data.attributes.length == 1){
+		if (node.data.numAttributes == 1){
 			toString();
 		}
 
-		else if (node.data.attributes[node.data.attributes.length - 1].getValues().length == 1){
+		else if (node.data.attributes[node.data.numAttributes - 1].getValues().length == 1){
 			toString();
 		}
 
-		
 		else if (node.data.numRows < 1){
 			toString();
 		}
 			
 
-		
 		//3. Recursive case:
 		else{
 			GainInfoItem[] sortedGainList = InformationGainCalculator.calculateAndSortInformationGains(node.data);
@@ -86,10 +81,11 @@ public class DecisionTree {
 			//for nominal attributes
 			if (a_max.getAttributeType() == AttributeType.NOMINAL){
 
-				for (int n=0; n < node.data.attributes.length; n++){
+				for (int n=0; n < node.data.numAttributes; n++){
 
 					if (node.data.attributes[n].getName().equals( a_max.getAttributeName() )){
 						i = n;
+						break;
 					}
 				}
 
@@ -107,19 +103,21 @@ public class DecisionTree {
 
 			//for numeric attributes
 			else{
-				for (int n=0; n < node.data.attributes.length; n++){
+				for (int n=0; n < node.data.numAttributes; n++){
 
 					if (node.data.attributes[n].getName().equals( a_max.getAttributeName() )){
 						i = n;
+						break;
 					}
 				}
 
-				String[] targetRow = node.data.attributes[i].getValues(); // node.data.attributes[i].getValues();   //??????????????
+				String[] targetRow = node.data.attributes[i].getValues();
 
 				for (int k=0; k < targetRow.length; k++){
 
 					if (targetRow[k].equals( a_max.getSplitAt() )){
 						j = k;
+						break;
 					}
 				}
 
@@ -130,8 +128,7 @@ public class DecisionTree {
 					node.children[t] = new Node<VirtualDataSet>(tmp[t]);
 				}
 
-				for (int n=0; n < node.children.length; n++) { //??????????????????????
-					//System.out.println("here");
+				for (int n=0; n < node.children.length; n++) {
 					build(node.children[n]);
 				}
 			}
@@ -154,78 +151,67 @@ public class DecisionTree {
 	 */
 	private String toString(Node<VirtualDataSet> node, int indentDepth) {
 		// WRITE YOUR CODE HERE!
+
+		//1. Edge cases:
+		// All the exeptions will be caught before reaching at this step, since
+		// this method is private, and "public String toString()" depends on root only.
+
 		StringBuffer buffer = new StringBuffer();
+		String indent = createIndent(indentDepth);
 
-		GainInfoItem[] check = InformationGainCalculator.calculateAndSortInformationGains(node.data); // if (check[0] == 0.0) is true, we know that we should return yes or no becuase we cannot go any further.
-		//System.out.println("bbb");
-		if(check[0].getGainValue() == 0.0){
 
-			//System.out.println("aaa");
+		//2. Base cases:
+		if(node.children == null){
 
 			buffer.append(createIndent(indentDepth + 1));
 
-			String classAttributeName = node.data.attributes[node.data.attributes.length - 1].getName();
-			String[] classAttributeValue = node.data.attributes[node.data.attributes.length - 1].getValues();
+			String classAttributeName = node.data.attributes[node.data.numAttributes - 1].getName();
+			String[] classAttributeValue = node.data.attributes[node.data.numAttributes - 1].getValues();
 
-			buffer.append(classAttributeName + " = " + classAttributeValue[0]); /// we need to find a way to acess the last column (yes's or no's) of final partition. ////
+			buffer.append(classAttributeName + " = " + classAttributeValue[0]);
 
-			buffer.append(System.lineSeparator());
-
-		}
-		else if(node.children == null){
-			//System.out.println("kkk");
-			buffer.append(createIndent(indentDepth + 1));
-
-			String classAttributeName = node.data.attributes[node.data.attributes.length - 1].getName();
-			String[] classAttributeValue = node.data.attributes[node.data.attributes.length - 1].getValues();
-
-			buffer.append(classAttributeName + " = " + classAttributeValue[0]); /// we need to find a way to acess the last column (yes's or no's) of final partition. ////
-
-			buffer.append(System.lineSeparator());
+			buffer.append("\n");
 			
 		}
-		else{
 
-			//build(node);
-			//System.out.println("aaa");
+
+		//3. Recursive case:
+		else{
 
 			for (int i = 0; i < node.children.length; i++) {
 
 				String condition = node.children[i].data.getCondition();
 
 				if (i == 0){
-
-					buffer.append(createIndent(indentDepth));
+					buffer.append(indent);
 
 					buffer.append("if (" + condition + ") {");
 
-					buffer.append(System.lineSeparator());
+					buffer.append("\n");
 
 					buffer.append(toString(node.children[i], indentDepth + 1));
 
-					buffer.append(createIndent(indentDepth));
+					buffer.append(indent);
 
 					buffer.append("}");
 
-					buffer.append(System.lineSeparator());
-
+					buffer.append("\n");
 				}
 				
 				else{
-
-					buffer.append(createIndent(indentDepth));
+					buffer.append(indent);
 
 					buffer.append("else if (" + condition + ") {");
 
-					buffer.append(System.lineSeparator());
+					buffer.append("\n");
 
 					buffer.append(toString(node.children[i], indentDepth + 1));
 
-					buffer.append(createIndent(indentDepth));
+					buffer.append(indent);
 
 					buffer.append("}");
 
-					buffer.append(System.lineSeparator());
+					buffer.append("\n");
 				}
 			}
 		}
@@ -266,76 +252,5 @@ public class DecisionTree {
 		DecisionTree dtree = new DecisionTree(data);
 
 		System.out.println(dtree);
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	private static String[] getUniqueAttributeNOMINAL(String[] oldArray) {
-		String[] newArray = new String[oldArray.length];
-		for (int i = 0; i < newArray.length; i++) {
-			newArray[i] = oldArray[i];
-		}
-		int end = newArray.length;
-        for (int i = 0; i < end; i++) {
-            for (int j = i + 1; j < end; j++) {
-                if ((newArray[i] != null) && (newArray[j] != null) && (newArray[i].equals(newArray[j]))) {  
-
-                    newArray[j] = newArray[end-1];
-                    end --;
-                    j --;
-                }
-            }
-        }
-
-        String[] emptyArray = new String[end];
-
-        for(int i = 0; i < end; i++){
-
-            emptyArray[i] = newArray[i];
-        }
-
-        // The number of empty or null elements in the chosen array are being counted.
-        String[] finalArray = new String[emptyArray.length];
-        int finalCounter = 0;
-        int ifNull = 0;
-
-        for (int k=0; k < emptyArray.length; k++){
-
-            if (emptyArray[k] == null || emptyArray[k].isEmpty()){
-
-                finalCounter ++;
-                ifNull ++;
-            }
-        }
-        if (ifNull > 0){
-            finalCounter --;
-        }
-        // The empty or null elements in the chosen array are being removed.
-        String[] finalStringArray = new String[emptyArray.length - finalCounter];
-        int n = 0;
-
-        for (int k=0; k < emptyArray.length; k++){
-            if (!(emptyArray[k] == null || emptyArray[k].isEmpty())){
-                finalStringArray[n] = emptyArray[k];
-                n ++;
-            }
-        }
-        // Replacing "null" with "MISSING" in arrays if there is any.
-        if (ifNull > 0){
-            finalStringArray[finalStringArray.length - 1] = "MISSING";
-        }
-        return finalStringArray;
 	}
 }

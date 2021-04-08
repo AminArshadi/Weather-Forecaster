@@ -81,6 +81,9 @@ public class EntropyEvaluator {
 	 * @return base-2 logarithm for x
 	 */
 	public static double log2(double x) {
+		if (x <= 0){
+			throw new IllegalArgumentException("Argument --x-- in method --log2-- cannot be less than or equal to zero.");
+		}
 		return (Math.log(x) / Math.log(2));
 	}
 }
